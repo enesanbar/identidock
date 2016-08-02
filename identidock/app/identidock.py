@@ -1,19 +1,31 @@
-from flask import Flask, Response
+from flask import Flask, Response, request
 from jinja2 import Environment, FileSystemLoader
 import requests
+import hashlib
 
 app = Flask(__name__)
 default_name = "Enes Anbar"
+salt = "UNIQUE_SALT"
 
 
-@app.route('/')
+@app.route('/', methods = ['GET', 'POST'])
 def main_page():
     name = default_name
+
+    if request.method == 'POST':
+        name = request.form['name']
+
+    # to generate different identicons for the same input in different sites
+    salted_name = salt + name
+    name_hash = hashlib.sha256(salted_name.encode()).hexdigest()
 
     template_env = Environment(loader = FileSystemLoader(searchpath = "."))
     template = template_env.get_template("index.html")
 
-    return template.render({'name': name})
+    return template.render({
+        'name': name,
+        'name_hash': name_hash
+    })
 
 
 @app.route('/monster/<name>')
