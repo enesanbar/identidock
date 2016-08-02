@@ -1,0 +1,9 @@
+version: '2'
+
+services:
+  identidock:
+    build:
+      context: .
+    ports:
+      - "9090:9090"
+      - "9191:9191"
