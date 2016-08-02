@@ -3,6 +3,7 @@ from jinja2 import Environment, FileSystemLoader
 import requests
 import hashlib
 import redis
+import html
 
 app = Flask(__name__)
 
@@ -17,6 +18,7 @@ def main_page():
 
     if request.method == 'POST':
         name = request.form['name']
+        # name = html.escape(request.form['name'], quote = True)
 
     # to generate different identicons for the same input in different sites
     salted_name = salt + name
@@ -33,7 +35,9 @@ def main_page():
 
 @app.route('/monster/<name>')
 def get_identicon(name):
+    # name = html.escape(name, quote = True)
     image = cache.get(name)
+
     if image is None:
         print("Cache miss", flush = True)
         r = requests.get('http://dnmonster:8080/monster/{}?size=80'.format(name))
