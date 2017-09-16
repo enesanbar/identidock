@@ -1,11 +1,18 @@
 version: '2'
 
 services:
+  nginx:
+    build: ./proxy
+    ports:
+      - "80:80"
+    environment:
+      - NGINX_HOST=192.168.99.113
+      - NGINX_PROXY=http://identidock:9090
+
   identidock:
     build: .
-    ports:
-      - "9090:9090"
-      - "9191:9191"
+    environment:
+      ENV: PROD
 
   dnmonster:
     image: amouat/dnmonster:1.0
