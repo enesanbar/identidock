@@ -1,0 +1,53 @@
+version: '2'
+
+services:
+  nginx:
+    build: ./proxy
+    ports:
+      - "80:80"
+    environment:
+      - NGINX_HOST=192.168.99.113
+      - NGINX_PROXY=http://identidock:9090
+
+  identidock:
+    build: .
+    environment:
+      ENV: PROD
+
+  dnmonster:
+    image: amouat/dnmonster:1.0
+
+  redis:
+    image: redis
+
+  logstash:
+    image: logstash
+    volumes:
+      - ./logging/logstash.conf:/etc/logstash.conf
+    environment:
+      - LOGSPOUT=ignore
+    command: -f /etc/logstash.conf
+
+  logspout:
+    image: amouat/logspout-logstash
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock
+    ports:
+      - "8000:80"
+    command: logstash://logstash:5000
+
+  elasticsearch:
+    image: elasticsearch
+    environment:
+      LOGSPOUT: ignore
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+
+  kibana:
+    image: kibana
+    environment:
+      LOGSPOUT: ignore
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+    links:
+      - elasticsearch
+    ports:
+      - "5601:5601"
