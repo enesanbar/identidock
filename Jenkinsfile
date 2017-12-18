@@ -1,4 +1,4 @@
 node {
   sh 'env | sort'
-  echo ${env.GIT_BRANCH}
+  echo env.GIT_BRANCH
 }
